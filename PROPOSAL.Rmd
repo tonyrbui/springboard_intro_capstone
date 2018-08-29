@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 ***
+# Predicting Appliance Energy Use
 
 ### What?
 
