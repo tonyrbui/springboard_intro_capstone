@@ -91,4 +91,13 @@ data_raw <- data_raw % >
 # Checking for NA or blank values
 data_raw %>% filter(is.na(date_timeOfDay) | date_timeOfDay == '')
 
+# Reordering columns
+data_clean <-
+  data_raw %>% select(date, date_month:date_timeOfDay, Appliances:Tdewpoint)
 
+# Column names are already nicely formatted
+# Data is already tidy. 
+# Each observation is specific datetime. Each variable is saved in it's own column
+
+# Creating CSV output
+write_csv(x = data_clean, path = "data_clean.csv")
