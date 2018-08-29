@@ -1,30 +1,45 @@
 ---
-title: "Springboard - Intro to Data Science - Capstone"
-author: "Tony bui"
-date: "August 14, 2018"
+title: "Predicting Appliance Energy Use "
+author: "Tony Bui"
+date: "2018 August 18"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+***
 
-## R Markdown
+### What?
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+This project will create a model to predict appliance energy use in a house.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
-```
+### Who and Why?
 
-## Including Plots
+The clients are electric utility companies. These companies need to be able to predict household energy demand accurately. If they produce too much electricity, energy will be wasted and costs will rise. On the other hand, if not enough electricity is produced, there will be power outages and customer satisfaction will fall.
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+### Data Source
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+The data is located on the [UCI Machine Learning Repository](http://archive.ics.uci.edu/ml/datasets/Appliances+energy+prediction). Observations were collected every 10 minutes for about 4.5 months.  
+
+* M-bus energy meters logged the electricity usage in *Wh* watt-hours.
+* ZigBee wireless sensors collected *T* temperature in degrees Celsius and *RH* relative humidity readings inside the house's rooms.
+* Outside weather conditions from the nearest airport weather station (Chievres Airport, Belgium) came from the Reliable Prognosis public dataset.
+
+
+### Approach
+
+The initial approach will be to create a multiple linear regression model. The dependent variable will be appliance energy use. The explanatory variables will be some combination of the following:  
+
+* date and time
+* light fixture energy use
+* indoor temperature and humidity
+* outdoor weather conditions
+
+
+### Deliverables
+
+* R code that was used for analysis
+* Slides presenting the results
