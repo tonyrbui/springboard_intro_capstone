@@ -23,9 +23,23 @@ head(data_raw)
 # Checking for missing values
 # NA values
 which(sapply(data_raw, FUN = "is.na"))
+# No character data, so do not need to check for blank character values
+
+# Checking for impossible values
+# Infinite values
+which(sapply(data_raw, FUN = "is.infinite"))
 # NAN values
 which(sapply(data_raw, FUN = "is.nan"))
-# No character data, so do not need to check for blank character values
+# Date seem plausible. Range is about 4.5 months as described by source
+months = (max(data_raw$date) - min(data_raw$date)) / 30 
+# All temperature and dewpoint readings seem plausible. Ranging from -6.6 to 29.86 Celsius (C)
+# Appliance and light fixture energy use seems plausible. Ranging from 0 to 1080 Watt-hours (Wh)
+# Relative humidity is a % value. Ranges between 0% and 100% as expected
+# Pressure at sea-level is 760 millimeters of mercury (mmHg). Data ranges from 729.3 to 772.3 mmHg.
+# Windspeed ranges between 0 and 14 meters per second (m/s)
+# Visibilty ranges between 1 and 66 kilometers (km)
+summary(data_raw)
+
 # Verify that date observations are 10 minutes apart
 # Create date lag variable that contains preceding datetime value
 data_raw <- data_raw %>% arrange(date) %>% mutate(date_lag = lag(date, order_by = date))
@@ -37,20 +51,6 @@ summary(data_raw)
 head(data_raw)
 # All datetime difference values are 10 minutes apart, except first observation 
 # First observation is NA. This is the expected output
-
-# Checking for impossible values
-# Infinite values
-which(sapply(data_raw, FUN = "is.infinite"))
-# Date seem plausible. Range is about 4.5 months as described by source
-months = (max(data_raw$date) - min(data_raw$date)) / 30 
-# All temperature and dewpoint readings seem plausible. Ranging from -6.6 to 29.86 Celsius (C)
-# Appliance and light fixture energy use seems plausible. Ranging from 0 to 1080 Watt-hours (Wh)
-# Relative humidity is a % value. Ranges between 0% and 100% as expected
-# Pressure at sea-level is 760 millimeters of mercury (mmHg). Data ranges from 729.3 to 772.3 mmHg.
-# Windspeed ranges between 0 and 14 meters per second (m/s)
-# Visibilty ranges between 1 and 66 kilometers (km)
-summary(data_raw)
-
 
 # Checking for outliers with boxplots
 # Spread for all the variables is very large
@@ -76,5 +76,8 @@ boxplot(data_raw$Windspeed, main = "Windspeed (m/s)")
 
 boxplot(data_raw$Visibility, main = "Visibility (km)")
 
-# Creating month, day, and weekday variables
-date
+# Creating month, day, weekday, and time variables
+data_raw <- mutate(date_month = month(date), date_day = day(date), date_wday = wday(date), date_hour = hour(date), date_minute = minute(date))
+
+hour(data_raw$date)
+minute(data_raw$date)
