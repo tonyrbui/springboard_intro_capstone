@@ -1,5 +1,5 @@
 ---
-title: "Predicting Appliance Energy Use "
+title: "Predicting Appliance Energy Use - Proposal"
 author: "Tony Bui"
 date: "2018 August 18"
 output: html_document
@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 ***
-# Predicting Appliance Energy Use
+# Predicting Appliance Energy Use - Proposal
 
 ### What?
 

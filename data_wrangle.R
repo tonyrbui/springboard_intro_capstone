@@ -67,7 +67,7 @@ boxplot(data_raw$Windspeed, main = "Windspeed (m/s)")
 boxplot(data_raw$Visibility, main = "Visibility (km)")
 
 # Creating month, day, weekday, hour, and minute variables
-ddata_raw <-
+data_raw <-
   data_raw %>% mutate(
     date_month = month(date),
     date_day = day(date),
@@ -81,8 +81,8 @@ ddata_raw <-
 # Morning between 06:00 and 11:59
 # Afternoon between 12:00 and 18:00
 # Evening between 06:00 and 11:59
-data_raw <- data_raw % >
-  % mutate(date_timeOfDay = ifelse(date_hour < 6, "night", ifelse(
+data_raw <-
+  data_raw %>% mutate(date_timeOfDay = ifelse(date_hour < 6, "night", ifelse(
     date_hour < 12,
     "morning",
     ifelse(date_hour < 18, "afternoon", "evening")

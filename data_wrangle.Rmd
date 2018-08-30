@@ -1,30 +1,31 @@
 ---
-title: "data_wrangle"
-author: "Tony bui"
-date: "August 29, 2018"
+title: "Predicting Appliance Energy Use - Data Wrangling"
+author: "Tony Bui"
+date: "2018 August 29"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+***
+# Predicting Appliance Energy Use - Data Wrangling
 
-## R Markdown
+## Data Files
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+* [Raw Data](https://github.com/tonyrbui/springboard_intro_capstone/blob/master/data_raw.csv)
+* [Cleaned Data](https://github.com/tonyrbui/springboard_intro_capstone/blob/master/data_clean.csv)
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+## Data Steps
 
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+1. Imported CSV file into using Tibble and Lubridate libraries
+2. Checked data for NA, NaN, Inf, and blank values
+3. Checked that observations were exactly 10 minutes apart and spanned approximately 4.5 months
+4. Created boxplots to check for outliers
+5. Created date and time variables
+  + Month
+  + Day
+  + Weekday
+  + Hour
+  + Minute
+  + Time of Day - Morning (06:00 and 11:59), Afternoon (12:00 and 18:00), Evening (18:00 and 23:59), Night (00:00 and 05:59)
