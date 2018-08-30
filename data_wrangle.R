@@ -31,7 +31,7 @@ which(sapply(data_raw, FUN = "is.infinite"))
 # NAN values
 which(sapply(data_raw, FUN = "is.nan"))
 # Date seem plausible. Range is about 4.5 months as described by source
-months = (max(data_raw$date) - min(data_raw$date)) / 30 
+months = (max(data_raw$date) - min(data_raw$date)) / 30
 # All temperature and dewpoint readings seem plausible. Ranging from -6.6 to 29.86 Celsius (C)
 # Appliance and light fixture energy use seems plausible. Ranging from 0 to 1080 Watt-hours (Wh)
 # Relative humidity is a % value. Ranges between 0% and 100% as expected
@@ -41,14 +41,16 @@ months = (max(data_raw$date) - min(data_raw$date)) / 30
 
 # Verify that date observations are 10 minutes apart
 # Create date lag variable that contains preceding datetime value
-data_raw <- data_raw %>% arrange(date) %>% mutate(date_lag = lag(date, order_by = date))
-# Create datetime difference variable. 
+data_raw <-
+  data_raw %>% arrange(date) %>% mutate(date_lag = lag(date, order_by = date))
+# Create datetime difference variable.
 data_raw <- data_raw %>% mutate(date_diff = date - date_lag)
 # Converting to numeric to inspect with summary()
-data_raw <- data_raw %>% mutate(date_diff_min = as.numeric(date_diff))
+data_raw <-
+  data_raw %>% mutate(date_diff_min = as.numeric(date_diff))
 summary(data_raw)
 head(data_raw)
-# All datetime difference values are 10 minutes apart, except first observation 
+# All datetime difference values are 10 minutes apart, except first observation
 # First observation is NA. This is the expected output
 
 # Checking for outliers with boxplots
@@ -57,14 +59,46 @@ head(data_raw)
 # Typical U.S. household energy use is about 897,000 Wh per month, so 1,000 Wh does not seem unreasonable
 data_boxplot_Wh <- data_raw %>% select(Appliances, lights)
 boxplot(data_boxplot_Wh, main = "Energy Use (Wh)")
-data_boxplot_T <- data_raw %>% select(T1, T2, T3, T4, T5, T6, T7, T8, T9, T_out, Tdewpoint)
+data_boxplot_T <-
+  data_raw %>% select(T1, T2, T3, T4, T5, T6, T7, T8, T9, T_out, Tdewpoint)
 boxplot(data_boxplot_T, main = "Temperature (C)")
-data_boxplot_RH <- data_raw %>% select(RH_1, RH_2, RH_3, RH_4, RH_5, RH_6, RH_7, RH_8, RH_9, RH_out)
+data_boxplot_RH <-
+  data_raw %>% select(RH_1, RH_2, RH_3, RH_4, RH_5, RH_6, RH_7, RH_8, RH_9, RH_out)
 boxplot(data_boxplot_RH, main = "Relative Humidity %")
 data_boxplot_Wh <- data_raw %>% select(Appliances, lights)
 boxplot(data_raw$Press_mm_hg, main = "Atmosphere Pressure (mmHg)")
 boxplot(data_raw$Windspeed, main = "Windspeed (m/s)")
 boxplot(data_raw$Visibility, main = "Visibility (km)")
+
+
+ggplot(data_raw, aes(x = date, y = Appliances)) +
+  labs(x = "Date", y = "Energy Use (wh)", title = "Appliances") +
+  geom_point(alpha = 0.25, size = 1)
+
+ggplot(data_raw, aes(Appliances)) +
+  geom_histogram(bins = 105)
+
+data_raw <- data_raw %>% mutate(ln_Appliances = log(Appliances, base = exp(1)))
+
+ggplot(data_raw, aes(x = date, y = ln_Appliances)) +
+  labs(x = "Date", y = "Energy Use (wh)", title = "Appliances") +
+  geom_point(alpha = 0.25, size = 1)
+
+ggplot(data_raw, aes(ln_Appliances)) +
+  geom_histogram(bins = 105)
+
+boxplot(data_raw$ln_Appliances)
+
+data_raw <- data_raw %>% mutate(inv_Appliances = 1 / Appliances)
+
+ggplot(data_raw, aes(x = date, y = inv_Appliances)) +
+  labs(x = "Date", y = "Energy Use (wh)", title = "Appliances") +
+  geom_point(alpha = 0.25, size = 1)
+
+ggplot(data_raw, aes(inv_Appliances)) +
+  geom_histogram(bins = 105)
+
+boxplot(data_raw$inv_Appliances)
 
 # Creating month, day, weekday, hour, and minute variables
 data_raw <-
@@ -96,7 +130,7 @@ data_clean <-
   data_raw %>% select(date, date_month:date_timeOfDay, Appliances:Tdewpoint)
 
 # Column names are already nicely formatted
-# Data is already tidy. 
+# Data is already tidy.
 # Each observation is specific datetime. Each variable is saved in it's own column
 
 # Creating CSV output
