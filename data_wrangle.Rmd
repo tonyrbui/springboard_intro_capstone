@@ -23,9 +23,12 @@ knitr::opts_chunk$set(echo = TRUE)
 3. Checked that observations were exactly 10 minutes apart and spanned approximately 4.5 months
 4. Created boxplots to check for outliers
 5. Created date and time variables
+  + Date
   + Month
   + Day
   + Weekday
+  + Time
   + Hour
   + Minute
-  + Time of Day - Morning (06:00 and 11:59), Afternoon (12:00 and 18:00), Evening (18:00 and 23:59), Night (00:00 and 05:59)
+  + Time of Day 1 - Morning (06:00 - 7:59), Midday (08:00 - 14:59), Afternoon (15:00 - 17:59), Evening (18:00 - 21:59), Night (22:00 - 05:59)
+  + Time of Day 2 - Night-Morning (22:00 - 7:59), Midday-Evening (08:00 - 21:59)
