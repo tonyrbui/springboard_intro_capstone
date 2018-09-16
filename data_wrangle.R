@@ -11,6 +11,8 @@ library(ggplot2)
 
 options(dplyr.width = Inf)
 
+remove(list = ls())
+
 # Importing raw data
 data_raw <-
   as_tibble(read_csv("data_raw.csv", col_types = cols(date = col_datetime(format = "%Y-%m-%d %H:%M:%S"))))
@@ -53,56 +55,20 @@ head(data_raw)
 # All datetime difference values are 10 minutes apart, except first observation
 # First observation is NA. This is the expected output
 
-# Checking for outliers with boxplots
-# Spread for all the variables is very large
-# Only appliance energy use had outlier observations that were above 1,000 Wh
-# Typical U.S. household energy use is about 897,000 Wh per month, so 1,000 Wh does not seem unreasonable
-data_boxplot_Wh <- data_raw %>% select(Appliances, lights)
-boxplot(data_boxplot_Wh, main = "Energy Use (Wh)")
-data_boxplot_T <-
-  data_raw %>% select(T1, T2, T3, T4, T5, T6, T7, T8, T9, T_out, Tdewpoint)
-boxplot(data_boxplot_T, main = "Temperature (C)")
-data_boxplot_RH <-
-  data_raw %>% select(RH_1, RH_2, RH_3, RH_4, RH_5, RH_6, RH_7, RH_8, RH_9, RH_out)
-boxplot(data_boxplot_RH, main = "Relative Humidity %")
-data_boxplot_Wh <- data_raw %>% select(Appliances, lights)
-boxplot(data_raw$Press_mm_hg, main = "Atmosphere Pressure (mmHg)")
-boxplot(data_raw$Windspeed, main = "Windspeed (m/s)")
-boxplot(data_raw$Visibility, main = "Visibility (km)")
+data_raw <-
+  data_raw %>% mutate(lights_on = ifelse(lights == 0, FALSE, TRUE))
 
+# # Checking for outliers with boxplots
+# # Spread for all the variables is very large
+# # Only appliance energy use had outlier observations that were above 1,000 Wh
+# # Typical U.S. household energy use is about 897,000 Wh per month, so 1,000 Wh does not seem unreasonable
 
-ggplot(data_raw, aes(x = date, y = Appliances)) +
-  labs(x = "Date", y = "Energy Use (wh)", title = "Appliances") +
-  geom_point(alpha = 0.25, size = 1)
-
-ggplot(data_raw, aes(Appliances)) +
-  geom_histogram(bins = 105)
-
-data_raw <- data_raw %>% mutate(ln_Appliances = log(Appliances, base = exp(1)))
-
-ggplot(data_raw, aes(x = date, y = ln_Appliances)) +
-  labs(x = "Date", y = "Energy Use (wh)", title = "Appliances") +
-  geom_point(alpha = 0.25, size = 1)
-
-ggplot(data_raw, aes(ln_Appliances)) +
-  geom_histogram(bins = 105)
-
-boxplot(data_raw$ln_Appliances)
-
-data_raw <- data_raw %>% mutate(inv_Appliances = 1 / Appliances)
-
-ggplot(data_raw, aes(x = date, y = inv_Appliances)) +
-  labs(x = "Date", y = "Energy Use (wh)", title = "Appliances") +
-  geom_point(alpha = 0.25, size = 1)
-
-ggplot(data_raw, aes(inv_Appliances)) +
-  geom_histogram(bins = 105)
-
-boxplot(data_raw$inv_Appliances)
 
 # Creating month, day, weekday, hour, and minute variables
 data_raw <-
   data_raw %>% mutate(
+    date_date = date(date),
+    date_time = as.POSIXct(strftime(date, format="%H:%M"),"%H:%M", tz=""),
     date_month = month(date),
     date_day = day(date),
     date_wday = wday(date),
@@ -112,15 +78,29 @@ data_raw <-
 
 # Creating time of day variable
 # Night between 00:00 and 05:59
-# Morning between 06:00 and 11:59
-# Afternoon between 12:00 and 18:00
-# Evening between 06:00 and 11:59
+# Morning between 06:00 and 8:59
+# Midday between 09:00 and 14:59
+# Afternoon between 15:00 and 17:59
+# Evening between 18:00 and 23:59
 data_raw <-
   data_raw %>% mutate(date_timeOfDay = ifelse(date_hour < 6, "night", ifelse(
-    date_hour < 12,
+    date_hour < 8,
     "morning",
-    ifelse(date_hour < 18, "afternoon", "evening")
+    ifelse(
+      date_hour < 15,
+      "midday",
+      ifelse(date_hour < 18, "afternoon", ifelse(date_hour < 22, "evening", "night"))
+    )
   )))
+
+
+
+# data_raw <-
+#   data_raw %>% mutate(date_timeOfDay = ifelse(
+#     date_hour < 8,
+#     "night - morning",
+#     ifelse(date_hour < 22, "daytime - evening", "night - morning")
+#   ))
 
 # Checking for NA or blank values
 data_raw %>% filter(is.na(date_timeOfDay) | date_timeOfDay == '')
@@ -132,6 +112,12 @@ data_clean <-
 # Column names are already nicely formatted
 # Data is already tidy.
 # Each observation is specific datetime. Each variable is saved in it's own column
+
+str(data_clean)
+
+data_raw %>% ggplot(aes(x = date, y = Appliances, color = date_timeOfDay)) + geom_point(alpha = 0.5, size = 1)
+# data_raw %>% filter(date_month == 2, date_day >= 23, date_day <= 23) %>% ggplot(aes(x = date, y = Appliances, color = date_timeOfDay)) + geom_point(alpha = 0.75, size = 1)
+# data_raw %>% filter(date_month == 2, date_day >= 15, date_day <= 21) %>% ggplot(aes(x = date_time, y = Appliances)) + geom_line() + facet_grid(rows = vars(date_wday)) 
 
 # Creating CSV output
 write_csv(x = data_clean, path = "data_clean.csv")
