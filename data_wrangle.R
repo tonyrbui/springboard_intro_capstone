@@ -75,7 +75,8 @@ boxplot(data_raw$Visibility, main = "Visibility (km)")
 data_raw <-
   data_raw %>% mutate(
     date_date = date(date),
-    date_time = as.POSIXct(strftime(date, format="%H:%M"),"%H:%M", tz=""),
+    date_time = as.POSIXct(strftime(date, format = "%H:%M"), "%H:%M", tz =
+                             ""),
     date_month = month(date),
     date_day = day(date),
     date_wday = wday(date),
@@ -83,20 +84,24 @@ data_raw <-
     date_minute = minute(date)
   )
 
-# Creating time of day 1 variable
+# Creating time of day 5 variable
 # Night between 22:00 and 05:59
 # Morning between 06:00 and 7:59
 # Midday between 08:00 and 14:59
 # Afternoon between 15:00 and 17:59
 # Evening between 18:00 and 21:59
 data_raw <-
-  data_raw %>% mutate(date_timeOfDay1 = ifelse(date_hour < 6, "night", ifelse(
+  data_raw %>% mutate(date_timeOfDay5 = ifelse(date_hour < 6, "night", ifelse(
     date_hour < 8,
     "morning",
     ifelse(
       date_hour < 15,
       "midday",
-      ifelse(date_hour < 18, "afternoon", ifelse(date_hour < 22, "evening", "night"))
+      ifelse(
+        date_hour < 18,
+        "afternoon",
+        ifelse(date_hour < 22, "evening", "night")
+      )
     )
   )))
 
@@ -110,17 +115,42 @@ data_raw <-
     ifelse(date_hour < 22, "midday - evening", "night - morning")
   ))
 
+# Creating time of day 3 variable
+# Night - Morning between 22:00 and 07:59
+# Daytime - Evening between 08:00 and 21:59
+data_raw <-
+  data_raw %>% mutate(date_timeOfDay3 = ifelse(
+    date_hour < 8,
+    "night - morning",
+    ifelse(date_hour < 17, "midday", ifelse(date_hour < 20, "evening", "night - morning"))
+  ))
+
 # Checking for NA or blank values
 data_raw %>% filter(is.na(date_timeOfDay1) | date_timeOfDay1 == '')
 data_raw %>% filter(is.na(date_timeOfDay2) | date_timeOfDay2 == '')
 
 # Reordering columns
 data_clean <-
-  data_raw %>% select(date, date_month:date_timeOfDay2, Appliances:Tdewpoint)
+  data_raw %>% select(date, date_date:date_timeOfDay3, Appliances:Tdewpoint)
 
 # Creating appliances energy used scatterplot, color-coded by time of day variables
-data_clean %>% ggplot(aes(x = date, y = Appliances, color = date_timeOfDay1)) + geom_point(alpha = 0.6, size = 1)
-data_clean %>% ggplot(aes(x = date, y = Appliances, color = date_timeOfDay2)) + geom_point(alpha = 0.6, size = 1)
+data_clean %>%
+  ggplot(aes(x = date, y = Appliances, color = date_timeOfDay5)) +
+  geom_point(alpha = 0.6, size = 1)
+data_clean %>% ggplot(aes(x = date, y = Appliances, color = date_timeOfDay2)) +
+  geom_point(alpha = 0.6, size = 1)
+data_clean %>% ggplot(aes(x = date, y = Appliances, color = date_timeOfDay3)) +
+  geom_point(alpha = 0.6, size = 1)
+
+
+data_clean %>% filter(date_month == 4) %>% ggplot(aes(x = date, y = Appliances, color = date_wday)) +
+  geom_point(alpha = 0.6, size = 1)
+
+# data_clean %>%
+#   filter(date_month == 5, date_day >= 1, date_day <= 7) %>%
+#   ggplot(aes(x = date_time, y = Appliances)) +
+#   geom_line() +
+#   facet_grid(rows = vars(date_day))
 
 # Column names are already nicely formatted
 # Data is already tidy.
@@ -128,3 +158,11 @@ data_clean %>% ggplot(aes(x = date, y = Appliances, color = date_timeOfDay2)) + 
 
 # Creating CSV output
 write_csv(x = data_clean, path = "data_clean.csv")
+
+data_hour <- data_clean %>% group_by(date_hour) %>% summarise(mean_Appliances = mean(Appliances))
+
+data_hour %>% ggplot(aes(x = date_hour, y = mean_Appliances)) + geom_line()
+
+data_clean %>% ggplot(aes(x = T_out, y = Appliances)) + geom_point(alpha = 0.6, size = 1)
+
+data_clean %>% ggplot(aes(x = T_out)) + geom_histogram(bins = 5)
